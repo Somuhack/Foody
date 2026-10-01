@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@5"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+  </head>
+  <body class="bg-blue-200 w-screen h-screen pt-20" >
+    <form method="POST">
+      {% csrf_token %}
+      <div class="card card-dash bg-slate-500 shadow-2xl bg-transparent w-96 mx-auto">
+        <div class="card-body">
+          <h2 class=" text-3xl font-bold text-indigo-600 text-center py-5">Sign up</h2>
+          <div>
+            {% for i in form %}
+
+            <div class="my-5">
+              <label class="font-semibold " for="{{i.id_for_label}}">{{i.label}}</label>
+              {{i}}
+            </div>
+
+            {% if i.errors %}
+               <div class="text-red-600">
+                {{i.errors}}
+               </div>
+                  {% endif %}
+            {% comment %} {% if i.help_text %}
+               <div>
+                {{i.help_text}}
+               </div>
+
+
+            {% endif %} {% endcomment %}
+
+            {% endfor %}
+          </div>
+          <div class="card-actions justify-center">
+            <button class="btn btn-primary" type="submit">Sign up</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    {% comment %} {{form.as_p}} {% endcomment %} {% comment %}
+    <button type="submit">Register</button> {% endcomment %}
+      <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </body>
+</html>

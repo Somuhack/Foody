@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Contact{% endblock title %}
+ 
+{% block main %}
+    <h1>Contact Page</h1>
+    <p class="box">
+      Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sint reiciendis,
+      fuga at unde sapiente, necessitatibus quaerat natus dignissimos architecto
+      atque odio tenetur commodi officia eos ipsa nam dicta quod? Consectetur.
+    </p>
+      <h1>Indian</h1>
+    <dl>
+      
+     {% comment %} 
+     Django Tempale
+     varible ={{  }}
+     for = {% for i in items %}{% endfor %}
+     {% if condition  %}
+     
+     {% endif %}
+     if-else{% if condition %}
+     
+     {% else %}
+     {% endif %}
+      {% endcomment %}
+      {% for item in address %}
+      
+      {% if item.isIndian %}
+     
+      <dt>{{item.name}}</dt>
+      <dd>City : {{item.city}} Pin : {{item.pin}}</dd>
+      
+      {% endif %}
+      {% endfor %}
+    </dl>
+    <a href=' {% url "home-page" %}'>Home</a>
+{% endblock main %}
