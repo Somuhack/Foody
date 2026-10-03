@@ -7,6 +7,7 @@ urlpatterns=[
     path("",views.Home,name="home-page"),
     path("contact/",views.Contact,name="contact-page"),
     path("product/",views.Products_views,name="product-page"),
+    path("product/<int:pk>",views.product_detail,name="product-details"),
     path("about/",views.About,name="about-page"),
     path("register/",views.register,name="register-page"),
     path("login/",views.login_view,name="login-page"),

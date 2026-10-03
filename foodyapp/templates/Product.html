@@ -2,23 +2,63 @@
 {% load static %} 
 {% block title %}Product{% endblock title %} 
 {% block main %}
+<form method="GET" class="p-30">
+  {% csrf_token %}
+  <input
+    type="text"
+    name="search"
+    value="{{search}}"
+    placeholder="Search here ..."
+  >
+  <select name="category">
+    <option value="">All Category</option>
+    {% for category in  categories %}
+   
+      <option 
+      value="{{category.id}}"
+       {% if selected_category == category.id|stringformat:"s"%}
+    selected
+    {% endif %}
+        
+      
+      
+      >{{category.name}}</option>
+    {% endfor %}
+  </select>
+  {% comment %} Sorting {% endcomment %}
+  <select name="sort">
+    {% comment %} Ariving wise Sorting {% endcomment %}
+    <option value="newest" {% if selected_sort == "newest" %}selected
+    {% endif %}>Newest</option>
+    <option value="oldest" {% if selected_sort == "oldest" %}selected
+    {% endif %}>Oldest</option>
+      {% comment %} Name wise Sorting {% endcomment %}
+    <option value="name" {% if selected_sort == "name" %}selected
+    {% endif %}>name A-Z</option>
+    <option value="-name" {% if selected_sort == "-name" %}selected
+    {% endif %}>name Z-A</option>
+      {% comment %} Price wise Sorting {% endcomment %}
+    <option value="price" {% if selected_sort == "price" %}selected
+    {% endif %}>Price Lowest To Height</option>
+    <option value="-price" {% if selected_sort == "-price" %}selected
+    {% endif %}>Price Highest to Lowest</option>
+  </select>
+  <button class="btn btn-dark w-100">Apply</button>
+</form>
 <div class="p-30 grid gap-10 grid-cols-1 md:grid-cols-1 lg:grid-cols-3">
-  {% for product in products %}
-  <div class="card bg-base-100 w-96 shadow-sm">
-    <figure>
-      <img src="{{product.image.url}}" alt="{{product.name}}" />
-    </figure>
-    <div class="card-body">
-      <h2 class="card-title">{{product.name}}</h2>
-      <h2 class="card-title">{{product.price}}</h2>
-      <p>
-        {{product.description}}
-      </p>
-      <div class="card-actions justify-end">
-        <button class="btn btn-primary">Buy Now</button>
+  {% for product in page_obj %}
+  <a href="{% url 'product-details' product.id %}">
+    <div class="card bg-base-100 w-96 shadow-sm">
+      <figure>
+        <img src="{{product.image.url}}" alt="{{product.name}}" />
+      </figure>
+      <div class="card-body">
+        <h2 class="card-title">{{product.name}}</h2>
+        <h2 class="card-title">{{product.price}}</h2>
+        <p>{{product.description|truncatechars:100 }}</p>
       </div>
     </div>
-  </div>
+  </a>
   {% endfor %}
 </div>
 

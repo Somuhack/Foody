@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpResponse
 from .forms import RegistrationForm
 from django.contrib.auth import login,authenticate,logout
@@ -64,7 +64,7 @@ def Products_views(request):
     products=Product.objects.select_related("category").all() #Select * from Products;
     
     # Search
-    search=request.get("search","")
+    search=request.GET.get("search","")
     if search:
        products=products.filter(
            Q(name__icontains=search) |
@@ -73,7 +73,7 @@ def Products_views(request):
     # Filter
     category = request.GET.get("category","")
     if category:
-        products=Product.filter(category_id=category)
+        products=Product.objects.filter(category_id=category)
      # Sort
     sort=request.GET.get("sort","newest")
     allowed_sorts={
@@ -102,3 +102,7 @@ def Products_views(request):
     }
     
     return render(request,"Product.html",context)
+def product_detail(request,pk):
+    product = get_object_or_404(Product,id=pk)
+    return render(request,"ProductDetails.html",{"product":product})   
+ 
