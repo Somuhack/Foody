@@ -1,0 +1,140 @@
+
+{% extends "base.html" %}
+
+{% block title %}AI Food Recommendation{% endblock title %}
+
+{% block main %}
+
+<div class="max-w-4xl mx-auto p-6">
+
+    <h1 class="text-3xl font-bold mb-2">
+        ✨ Foody AI Recommendations
+    </h1>
+
+    <p class="text-gray-500 mb-6">
+        Find dishes that match your taste and budget.
+    </p>
+
+    <form method="GET" class="card bg-base-100 shadow-xl p-6 space-y-4">
+
+        <div>
+            <label class="font-semibold block mb-2">
+                What's your budget?
+            </label>
+
+            <input
+                type="number"
+                name="budget"
+                min="1"
+                step="0.01"
+                value="{{ budget }}"
+                placeholder="Enter budget (e.g. 200)"
+                class="input input-bordered w-full"
+                required
+            >
+        </div>
+
+        <div>
+            <label class="font-semibold block mb-2">
+                Dietary preference
+            </label>
+
+            <select name="diet" class="select select-bordered w-full">
+                <option value="any"
+                    {% if diet == "any" %}selected{% endif %}>
+                    Any
+                </option>
+
+                <option value="vegetarian"
+                    {% if diet == "vegetarian" %}selected{% endif %}>
+                    Vegetarian
+                </option>
+
+                <option value="vegan"
+                    {% if diet == "vegan" %}selected{% endif %}>
+                    Vegan
+                </option>
+            </select>
+        </div>
+
+        <div>
+            <label class="font-semibold block mb-2">
+                Spice preference
+            </label>
+
+            <select name="spice" class="select select-bordered w-full">
+                <option value="any"
+                    {% if spice == "any" %}selected{% endif %}>
+                    Any spice level
+                </option>
+
+                <option value="spicy"
+                    {% if spice == "spicy" %}selected{% endif %}>
+                    Spicy food
+                </option>
+
+                <option value="mild"
+                    {% if spice == "mild" %}selected{% endif %}>
+                    Mild food
+                </option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full">
+            ✨ Recommend Food
+        </button>
+
+    </form>
+
+    {% if submitted %}
+        <h2 class="text-2xl font-bold mt-8 mb-4">
+            Recommended for you
+        </h2>
+
+        {% if products %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                {% for product in products %}
+                    <a href="{% url 'product-details' product.id %}">
+                        <div class="card bg-base-100 shadow-md h-full">
+
+                            {% if product.image %}
+                                <figure>
+                                    <img
+                                        src="{{ product.image.url }}"
+                                        alt="{{ product.name }}"
+                                        class="w-full h-48 object-cover"
+                                    >
+                                </figure>
+                            {% endif %}
+
+                            <div class="card-body">
+                                <h3 class="card-title">
+                                    {{ product.name }}
+                                </h3>
+
+                                <p class="font-bold text-lg">
+                                    ₹{{ product.price }}
+                                </p>
+
+                                <p>
+                                    {{ product.description|truncatechars:100 }}
+                                </p>
+                            </div>
+
+                        </div>
+                    </a>
+                {% endfor %}
+
+            </div>
+        {% else %}
+            <p class="mt-4 text-gray-500">
+                No matching dishes found. Try increasing your budget
+                or changing your preferences.
+            </p>
+        {% endif %}
+    {% endif %}
+
+</div>
+
+{% endblock main %}

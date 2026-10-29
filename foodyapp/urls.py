@@ -12,6 +12,9 @@ urlpatterns=[
     path("register/",views.register,name="register-page"),
     path("login/",views.login_view,name="login-page"),
     path("logout/",views.logout_page,name="logout"),
+    path("ai-recommendations/",views.ai_recommendations,name="ai-recommendations"
+    ),
+    path('cart/add/<int:product_id>/', views.add_to_cart, name='add-to-cart'),
 ]
 
 if settings.DEBUG:

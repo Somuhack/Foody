@@ -55,7 +55,7 @@
             </label>
             <p class="text-white font-bold font-display">Coffea</p>
           </div>
-          <div class="navbar-center hidden lg:flex">
+          <div class="navbar-center hidden lg:flex z-[9999999999999999999]">
             <ul class="menu menu-horizontal px-1 text-white text-[1.2rem]">
               <li>
                 <a href='{% url "home-page" %}'>Home</a>
@@ -63,6 +63,11 @@
               <li><a href='{% url "product-page" %}'>Product</a></li>
               <li><a href='{% url "about-page" %}'>About</a></li>
               <li><a href='{% url "contact-page" %}'>Contact</a></li>
+              <li>
+                <a href="{% url 'ai-recommendations' %}">
+                  AI Food Recommendations ✨
+                </a>
+              </li>
             </ul>
           </div>
           <div class="navbar-end">
@@ -119,7 +124,15 @@
               </svg>
             </label>
           </div>
-          <div class="ml-5">
+          <div class="ml-5 flex justify-center items-center gap-5">
+           <div class="relative inline-flex items-center">
+  <i class="fa-solid fa-cart-shopping text-2xl"></i>
+  <span 
+    id="cartBadge" 
+    class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white shadow">
+    0
+  </span>
+</div>
             {% if user.is_authenticated %}
             <form action="{% url 'logout' %}" method="post">
               {% csrf_token %}
@@ -212,6 +225,7 @@
       </nav>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://kit.fontawesome.com/81eced50b1.js" crossorigin="anonymous"></script>
     <script>
       const navabr = document.getElementById("navbarx");
       window.addEventListener("scroll", function () {
@@ -219,14 +233,14 @@
           navabr.classList.add(
             "bg-gray-950/50",
             "backdrop-blur-md",
-            "shadow-lg"
+            "shadow-lg",
           );
           // navabr.classList.remove("bg-transparent");
         } else {
           navabr.classList.remove(
             "bg-gray-950/50",
             "backdrop-blur-md",
-            "shadow-lg"
+            "shadow-lg",
           );
           // navabr.classList.add("bg-transparent");
         }

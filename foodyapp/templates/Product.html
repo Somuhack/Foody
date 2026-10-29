@@ -2,15 +2,21 @@
 {% load static %} 
 {% block title %}Product{% endblock title %} 
 {% block main %}
-<form method="GET" class="p-30">
-  {% csrf_token %}
-  <input
-    type="text"
-    name="search"
-    value="{{search}}"
-    placeholder="Search here ..."
-  >
-  <select name="category">
+<!-- Loading Overlay --> 
+ <div id="loadingOverlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-white/80 backdrop-blur-sm"> 
+  <div class="text-center"> 
+    <!-- Spinner --> 
+     <span className="loading loading-spinner loading-xl"></span> <p class="mt-3 text-lg font-semibold"> Loading products... </p> </div> </div>
+<form method="GET" id="filterForm" class="p-30">
+  <input 
+  type="text" 
+  id="searchInput" 
+  name="search" 
+  value="{{ search }}" 
+  placeholder="Search products..." 
+  autocomplete="off" >
+
+  <select name="category" id="categorySelect">
     <option value="">All Category</option>
     {% for category in  categories %}
    
@@ -26,7 +32,7 @@
     {% endfor %}
   </select>
   {% comment %} Sorting {% endcomment %}
-  <select name="sort">
+  <select name="sort" id="sortProducts">
     {% comment %} Ariving wise Sorting {% endcomment %}
     <option value="newest" {% if selected_sort == "newest" %}selected
     {% endif %}>Newest</option>
@@ -43,12 +49,24 @@
     <option value="-price" {% if selected_sort == "-price" %}selected
     {% endif %}>Price Highest to Lowest</option>
   </select>
-  <button class="btn btn-dark w-100">Apply</button>
+  <!-- <button class="btn btn-dark w-100">Apply</button> -->
 </form>
+{% if ai_search_used %}
+  <p class="text-muted small">Ai Assited Search Enable</p>
+{% endif %}
+{% if search_error_occurred %}
+  <div class="px-30 mb-4">
+    <span class="badge badge-warning gap-2 py-3 px-4 text-sm font-medium shadow-sm">
+      ⚠️ Standard search used (AI Search is temporarily unavailable).
+    </span>
+  </div>
+{% endif %}
+
 <div class="p-30 grid gap-10 grid-cols-1 md:grid-cols-1 lg:grid-cols-3">
   {% for product in page_obj %}
-  <a href="{% url 'product-details' product.id %}">
+ 
     <div class="card bg-base-100 w-96 shadow-sm">
+       <a href="{% url 'product-details' product.id %}">
       <figure>
         <img src="{{product.image.url}}" alt="{{product.name}}" />
       </figure>
@@ -56,10 +74,151 @@
         <h2 class="card-title">{{product.name}}</h2>
         <h2 class="card-title">{{product.price}}</h2>
         <p>{{product.description|truncatechars:100 }}</p>
+         
+      
       </div>
+    </a>
+      <button 
+        type="button" 
+        class="btn btn-warning w-36 text-white font-bold add-to-cart-btn ml-5 mb-5" 
+        data-product-id="{{ product.id }}">
+        <i class="fa-solid fa-plus text-[.8rem] mr-1"></i> Add to cart
+      </button>
     </div>
-  </a>
+
   {% endfor %}
+
+   <!-- Pagination -->
+
+
 </div>
+ <nav class="m-5">
+    <ul class="flex justify-center">
+      {% if page_obj.has_previous %}
+<li>
+  <a class="btn btn-error" href="?search={{ search }}&category={{ selected_category }}&sort={{
+selected_sort }}&page={{ page_obj.previous_page_number }}">Previous</a></li>
+{% endif %}
+
+{% for num in  page_obj.paginator.page_range %}
+<li class="join {% if page_obj.number == num %}active{% endif %}">
+  <a class="join-item btn btn-square" href="?search={{ search }}&category={{ selected_category }}&sort={{
+selected_sort }}&page={{num}}">{{num}}</a>
+  </li>
+{% endfor %}
+
+{% if page_obj.has_next %}
+
+<li><a class="btn btn-primary" href="?search={{ search }}&category={{ selected_category }}&sort={{
+selected_sort }}&page={{ page_obj.next_page_number }}">Next</a></li>
+{% endif %}
+    </ul>
+   </nav> 
+   <script>
+  const filterForm = document.getElementById("filterForm");
+  const searchInput = document.getElementById("searchInput");
+const categorySelect = document.getElementById("categorySelect")
+const sortProducts= document.getElementById("sortProducts")
+const loadingOverlay = document.getElementById("loadingOverlay");
+
+// Show loading 
+function showLoading() 
+{ 
+  loadingOverlay.classList.remove("hidden"); 
+loadingOverlay.classList.add("flex"); 
+}
+
+  let searchTimer;
+// Search automatically while typing
+searchInput.addEventListener("input",function(){
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(function () {
+    showLoading();
+    filterForm.requestSubmit() }, 1000);
+})
+
+categorySelect.addEventListener("change",function(){
+  showLoading();
+  filterForm.requestSubmit()
+})
+
+sortProducts.addEventListener("change",function(){
+  showLoading();
+  filterForm.requestSubmit()
+})
+
+// Function to get CSRF token from cookies
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+// Add event listeners to all Add to Cart buttons
+document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+  button.addEventListener('click', async function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const productId = this.dataset.productId;
+    const originalText = this.innerHTML;
+
+    // Loading state for button
+    this.disabled = true;
+    this.innerHTML = '<span class="loading loading-spinner loading-xs"></span> Adding...';
+
+    try {
+      const response = await fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === 'success') {
+        this.innerHTML = '✓ Added!';
+        this.classList.remove('btn-warning');
+        this.classList.add('btn-success');
+
+        // Optional: Update cart counter badge in navbar if you have one
+        const cartBadge = document.getElementById('cartBadge');
+        if (cartBadge) {
+          cartBadge.innerText = data.total_cart_items;
+        }
+
+        setTimeout(() => {
+          this.innerHTML = originalText;
+          this.classList.remove('btn-success');
+          this.classList.add('btn-warning');
+          this.disabled = false;
+        }, 1500);
+      } else {
+        alert('Could not add item to cart. Please try again.');
+        this.innerHTML = originalText;
+        this.disabled = false;
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error. Please try again.');
+      this.innerHTML = originalText;
+      this.disabled = false;
+    }
+  });
+});
+
+</script>
 
 {% endblock main %}
